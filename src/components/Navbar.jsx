@@ -1,4 +1,6 @@
 import { useState } from "react";
+import useScrollSpy from "../hooks/useScrollSpy";
+import { useCart } from "./CartContext";
 
 const NAV_LINKS = [
   { href: "#productos", label: "Productos" },
@@ -8,7 +10,11 @@ const NAV_LINKS = [
   { href: "#contacto", label: "Contacto" },
 ];
 
-const linkClass = "text-heading hover:text-fg-brand";
+// Fuera del componente, para que el arreglo sea estable entre renders
+const SECTION_IDS = NAV_LINKS.map(({ href }) => href.slice(1));
+
+const linkClass = (active) =>
+  active ? "text-fg-brand" : "text-heading hover:text-fg-brand";
 
 function CartBadge({ count, className }) {
   if (count <= 0) return null;
@@ -22,14 +28,13 @@ function CartBadge({ count, className }) {
 }
 
 export default function Navbar({
-  cartCount = 0,
   onOpenSearch = () => {},
-  onToggleCart = () => {},
   homeHref = "/",
-  loginHref = "/pages/login.html",
+  loginHref = "/legacy/pages/login.html",
 }) {
+  const { cartCount, toggleCart } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
-
+  const activeId = useScrollSpy(SECTION_IDS);
   return (
     <nav className="fixed top-0 left-0 w-full z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
       <div className="w-full px-4 md:px-8 h-16 flex items-center justify-between gap-4">
@@ -52,7 +57,10 @@ export default function Navbar({
           <ul className="font-medium flex items-center space-x-6 whitespace-nowrap">
             {NAV_LINKS.map(({ href, label }) => (
               <li key={href}>
-                <a href={href} className={linkClass}>
+                <a
+                  href={href}
+                  className={linkClass(activeId === href.slice(1))}
+                >
                   {label}
                 </a>
               </li>
@@ -106,7 +114,7 @@ export default function Navbar({
           {/* Carrito */}
           <button
             type="button"
-            onClick={onToggleCart}
+            onClick={toggleCart}
             className="flex items-center gap-2 text-heading hover:text-fg-brand font-medium cursor-pointer whitespace-nowrap"
           >
             <span className="relative inline-block">
@@ -143,7 +151,7 @@ export default function Navbar({
           {/* Carrito (mobile) */}
           <button
             type="button"
-            onClick={onToggleCart}
+            onClick={toggleCart}
             aria-label="Carrito"
             className="relative md:hidden text-xl text-heading hover:text-fg-brand p-2"
           >
@@ -189,7 +197,7 @@ export default function Navbar({
               key={href}
               href={href}
               onClick={() => setMobileOpen(false)}
-              className={`block py-2 ${linkClass}`}
+              className={`block py-2 ${linkClass(activeId === href.slice(1))}`}
             >
               {label}
             </a>
