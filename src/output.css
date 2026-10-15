@@ -1,8 +1,0 @@
-/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-html {
-  scroll-behavior: smooth;
-}
-.search-panel {
-  max-height: min(70vh, 520px);
-  overflow-y: auto;
-}
